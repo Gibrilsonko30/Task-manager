@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Completed Tasks - Admin Dashboard</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #0f3460);
+            color: white;
+            margin: 0;
+            padding: 40px;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4db8ff;
+            margin-bottom: 40px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        label {
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        select, input {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            margin-right: 10px;
+            background-color: #4db8ff;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        select:hover, input:hover {
+            background-color: #1abc9c;
+        }
+
+        /* Toggle Button */
+        .view-toggle {
+            background: #1abc9c;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .view-toggle:hover {
+            background: #4db8ff;
+        }
+
+        /* Task Container */
+        #taskContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        /* Task Card (Grid View) */
+        .task-card {
+            flex: 1 1 calc(33.33% - 20px);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.4s, box-shadow 0.4s;
+            cursor: pointer;
+        }
+
+        .task-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .task-title {
+            font-size: 20px;
+            color: #4db8ff;
+            margin-bottom: 10px;
+        }
+
+        .task-details {
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .task-details a {
+            color: #1abc9c;
+            text-decoration: none;
+        }
+
+        /* Task Table (List View) */
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+        }
+
+        .task-table thead {
+            background: #4db8ff;
+        }
+
+        .task-table th, .task-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .task-table th {
+            color: white;
+        }
+
+        .task-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .task-card {
+                flex: 1 1 calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .task-card {
+                flex: 1 1 100%;
+            }
+
+            .task-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Completed Tasks</h1>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div>
+            <label for="taskType">Task Type:</label>
+            <select id="taskType" onchange="applyFilters()">
+                <option value="all">All Types</option>
+                <option value="Development">Development</option>
+                <option value="Design">Design</option>
+                <option value="Marketing">Marketing</option>
+            </select>
+
+            <label for="department">Department:</label>
+            <select id="department" onchange="applyFilters()">
+                <option value="all">All Departments</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Marketing">Marketing</option>
+                <option value="HR">HR</option>
+            </select>
+
+            <label for="dateCompleted">Date Completed:</label>
+            <input type="date" id="dateCompleted" onchange="applyFilters()">
+        </div>
+
+        <button class="view-toggle" onclick="toggleView()">Switch to List View</button>
+    </div>
+
+    <!-- Task Container -->
+    <div id="taskContainer"></div>
+
+    <script>
+        const tasks = [
+            {
+                title: "Develop API",
+                type: "Development",
+                user: "John Doe",
+                userGithub: "https://github.com/johndoe",
+                teamLead: "Jane Smith",
+                teamLeadGithub: "https://github.com/janesmith",
+                department: "Engineering",
+                dateCompleted: "2025-02-15"
+            },
+            {
+                title: "Design UI",
+                type: "Design",
+                user: "Alice Johnson",
+                userGithub: "https://github.com/alicej",
+                teamLead: "Michael Brown",
+                teamLeadGithub: "https://github.com/michaelb",
+                department: "Marketing",
+                dateCompleted: "2025-02-18"
+            }
+        ];
+
+        let isGridView = true;
+
+        function renderTasks() {
+            const container = document.getElementById('taskContainer');
+            container.innerHTML = isGridView ? renderGrid() : renderTable();
+        }
+
+        function renderGrid() {
+            return tasks.map(task => `
+                <div class="task-card">
+                    <h2 class="task-title">${task.title}</h2>
+                    <div class="task-details">
+                        <p>Type: ${task.type}</p>
+                        <p>User: <a href="${task.userGithub}" target="_blank">${task.user}</a></p>
+                        <p>Team Lead: <a href="${task.teamLeadGithub}" target="_blank">${task.teamLead}</a></p>
+                        <p>Department: ${task.department}</p>
+                        <p>Date Completed: ${task.dateCompleted}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTable() {
+            return `
+                <table class="task-table">
+                    <thead>
+                        <tr><th>Title</th><th>Type</th><th>User</th><th>Team Lead</th><th>Department</th><th>Date Completed</th></tr>
+                    </thead>
+                    <tbody>
+                        ${tasks.map(task => `
+                            <tr>
+                                <td>${task.title}</td><td>${task.type}</td><td>${task.user}</td><td>${task.teamLead}</td><td>${task.department}</td><td>${task.dateCompleted}</td>
+                            </tr>`).join('')}
+                    </tbody>
+                </table>`;
+        }
+
+        function toggleView() {
+            isGridView = !isGridView;
+            renderTasks();
+        }
+
+        renderTasks();
+    </script>
+
+</body>
+
+</html>

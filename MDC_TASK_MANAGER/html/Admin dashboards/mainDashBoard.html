@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar h2 {
+            font-size: 30px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4db8ff;
+            letter-spacing: 1.2px;
+        }
+
+        .sidebar button,
+        .sidebar a {
+            text-decoration: none;
+            text-align: center;
+            background: #2a93da;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.4s ease;
+        }
+
+        .sidebar a:hover,
+        .sidebar button:hover {
+            background: #1abc9c;
+            transform: translateX(5px);
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-size: 50px;
+            margin-bottom: 30px;
+            color: #4db8ff;
+        }
+
+        /* View Toggle and Create Task */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 15px;
+        }
+
+        .view-toggle button {
+            background: #4db8ff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .view-toggle button:hover {
+            background: #1abc9c;
+        }
+
+        .create-task-link {
+            text-decoration: none;
+            background: #4db8ff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .create-task-link:hover {
+            background: #1abc9c;
+        }
+
+        /* Task Cards (Grid) */
+        .task-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .task-card {
+            flex: 1 1 calc(33.33% - 20px);
+            background: rgba(255, 255, 255, 0.15);
+            padding: 30px;
+            border-radius: 16px;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .task-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .task-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #4db8ff;
+        }
+
+        .task-card p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .task-card {
+                flex: 1 1 calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .task-card {
+                flex: 1 1 100%;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Admin Dashboard</h2>
+            <a href="overview.html">Overview</a>
+            <a href="pending-tasks.html">Pending Tasks</a>
+            <a href="completed-tasks.html">Completed Tasks</a>
+            <a href="overdue-tasks.html">Overdue Tasks</a>
+            <a href="user-directory.html">User Directory</a>
+            <a href="task-analytics.html">Task Analytics</a>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content" id="dashboardContent">
+            <h1>Welcome, Admin!</h1>
+
+            <!-- View Toggle & Create Task -->
+            <div class="top-bar">
+                <div class="view-toggle">
+                    <button onclick="toggleView('grid')">Grid View</button>
+                    <button onclick="toggleView('list')">List View</button>
+                </div>
+                <a href="add-task.html" class="create-task-link">Create Task</a>
+            </div>
+
+            <!-- Task Grid -->
+            <div id="taskGrid" class="task-container"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const tasks = [
+            { id: 1, title: 'Dashboard UI', assignedTo: 'Gibril Sonko', status: 'In Progress' },
+            { id: 2, title: 'API Integration', assignedTo: 'Mr. Williams', status: 'Completed' },
+            { id: 3, title: 'Bug Fixing', assignedTo: 'Alice Johnson', status: 'Pending' },
+        ];
+
+        function populateTasks() {
+            const grid = document.getElementById('taskGrid');
+            grid.innerHTML = tasks.map(task => `
+                <div class="task-card">
+                    <h3>${task.title}</h3>
+                    <p>Assigned to: ${task.assignedTo}</p>
+                    <p>Status: ${task.status}</p>
+                </div>
+            `).join('');
+        }
+
+        function toggleView(view) {
+            const grid = document.getElementById('taskGrid');
+            grid.style.display = view === 'grid' ? 'flex' : 'none';
+        }
+
+        function logout() {
+            alert('Logging out...');
+            window.location.href = 'login.html';
+        }
+
+        populateTasks();
+    </script>
+
+</body>
+
+</html>

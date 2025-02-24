@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Logout - Admin Dashboard</title>
+    <style>
+        /* Logout Panel Styles */
+        .logout-panel {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1000; /* Ensure it stays on top */
+        }
+
+        .logout-panel p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn.yes {
+            background: #27ae60;
+            color: white;
+        }
+
+        .logout-btn.yes:hover {
+            background: #2ecc71;
+        }
+
+        .logout-btn.no {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .logout-btn.no:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Logging out...</h1>
+
+    <!-- Logout Confirmation Panel -->
+    <div id="logoutPanel" class="logout-panel">
+        <p>Are you sure you want to log out?</p>
+        <button class="logout-btn yes" onclick="handleLogout(true)">Yes</button>
+        <button class="logout-btn no" onclick="handleLogout(false)">No</button>
+    </div>
+
+    <script>
+        // Handle Logout Action
+        const handleLogout = (confirmLogout) => {
+            const panel = document.getElementById('logoutPanel');
+
+            if (confirmLogout) {
+                // Clear authentication details (localStorage/sessionStorage)
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userRole');
+
+                alert('Successfully Logged Out');
+
+                // Redirect to the login or homepage
+                window.location.href = '../index.html';
+            } else {
+                // Stay on the page
+                alert('Logout Cancelled');
+                panel.style.display = 'none'; // Hide the logout panel
+                window.history.back(); // Navigate back to the previous page
+            }
+        };
+    </script>
+
+</body>
+
+</html>

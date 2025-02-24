@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>All Tasks - Admin Dashboard</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #2c2c54, #474787);
+            color: white;
+            margin: 0;
+            padding: 40px;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff4757;
+            margin-bottom: 40px;
+        }
+
+        /* Search Bar */
+        #searchContainer {
+            margin-bottom: 40px;
+        }
+
+        #search {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            background-color: #ddd;
+            color: black;
+        }
+
+        #search:focus {
+            background-color: #ccc;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        label {
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        select, input, button {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            margin-right: 10px;
+            background-color: #ff6b81;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        select:hover, input:hover, button:hover {
+            background-color: #e55039;
+        }
+
+        /* Toggle Button */
+        .view-toggle {
+            background: #ff4757;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .view-toggle:hover {
+            background: #e55039;
+        }
+
+        /* Task Container */
+        #taskContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* Task Card (Grid View) */
+        .task-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.4s, box-shadow 0.4s;
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .task-card.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .task-title {
+            font-size: 20px;
+            color: #ff6b81;
+            margin-bottom: 10px;
+        }
+
+        .task-details {
+            font-size: 14px;
+            line-height: 1.8;
+            display: none;
+        }
+
+        .task-card.active .task-details {
+            display: block;
+        }
+
+        /* Task Table (List View) */
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .task-table thead {
+            background: #ff4757;
+        }
+
+        .task-table th, .task-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .task-table tbody tr {
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .task-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .filter-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .task-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>All Tasks</h1>
+
+    <!-- Back to Dashboard -->
+    <div>
+        <a href="/admin-dashboard" style="color: #ff4757; text-decoration: none; font-size: 18px;">&lt; Back to Dashboard</a>
+    </div>
+
+    <!-- Search Bar -->
+    <div id="searchContainer">
+        <input type="text" id="search" placeholder="Search task or username" oninput="renderTasks()">
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <label for="department">Department:</label>
+        <select id="department" onchange="renderTasks()">
+            <option value="">All</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Marketing">Marketing</option>
+        </select>
+
+        <label for="taskType">Task Type:</label>
+        <select id="taskType" onchange="renderTasks()">
+            <option value="">All</option>
+            <option value="Development">Development</option>
+            <option value="Design">Design</option>
+        </select>
+
+        <label for="dateDue">Due Date:</label>
+        <input type="date" id="dateDue" onchange="renderTasks()">
+
+        <button class="view-toggle" onclick="toggleView()">Switch to List View</button>
+    </div>
+
+    <!-- Task Container -->
+    <div id="taskContainer"></div>
+
+    <script>
+        const tasks = [
+            {
+                title: "API Security Patch",
+                type: "Development",
+                user: "John Doe",
+                userGithub: "https://github.com/johndoe",
+                teamLead: "Jane Smith",
+                teamLeadGithub: "https://github.com/janesmith",
+                department: "Engineering",
+                dateDue: "2025-03-01",
+                dateCompleted: "2025-02-20"
+            },
+            {
+                title: "UI Prototype",
+                type: "Design",
+                user: "Alice Johnson",
+                userGithub: "https://github.com/alicej",
+                teamLead: "Michael Brown",
+                teamLeadGithub: "https://github.com/michaelb",
+                department: "Marketing",
+                dateDue: "2025-02-28",
+                dateCompleted: "2025-02-18"
+            },
+            {
+                title: "Backend API Integration",
+                type: "Development",
+                user: "David Lee",
+                userGithub: "https://github.com/davidlee",
+                teamLead: "Sarah Adams",
+                teamLeadGithub: "https://github.com/sarahadams",
+                department: "Engineering",
+                dateDue: "2025-03-05",
+                dateCompleted: "2025-02-22"
+            },
+            {
+                title: "Marketing Campaign Design",
+                type: "Design",
+                user: "Emma Watson",
+                userGithub: "https://github.com/emmawatson",
+                teamLead: "John Green",
+                teamLeadGithub: "https://github.com/johngreen",
+                department: "Marketing",
+                dateDue: "2025-03-07",
+                dateCompleted: "2025-02-25"
+            }
+        ];
+
+        let isGridView = true;
+
+        function renderTasks() {
+            const container = document.getElementById('taskContainer');
+            container.innerHTML = isGridView ? renderGrid() : renderTable();
+        }
+
+        function filterTasks() {
+            const department = document.getElementById('department').value;
+            const taskType = document.getElementById('taskType').value;
+            const dateDue = document.getElementById('dateDue').value;
+            const searchQuery = document.getElementById('search').value.toLowerCase();
+
+            return tasks.filter(task =>
+                (!department || task.department === department) &&
+                (!taskType || task.type === taskType) &&
+                (!dateDue || task.dateDue === dateDue) &&
+                (task.title.toLowerCase().includes(searchQuery) || task.user.toLowerCase().includes(searchQuery))
+            );
+        }
+
+        function renderGrid() {
+            return filterTasks().map((task, index) => `
+                <div class="task-card" onclick="toggleDetails(${index})" id="task-${index}">
+                    <h2 class="task-title">${task.title}</h2>
+                    <div class="task-details">
+                        <p>Type: ${task.type}</p>
+                        <p>User: <a href="${task.userGithub}" target="_blank">${task.user}</a></p>
+                        <p>Team Lead: <a href="${task.teamLeadGithub}" target="_blank">${task.teamLead}</a></p>
+                        <p>Department: ${task.department}</p>
+                        <p>Due Date: ${task.dateDue}</p>
+                        <p>Completed: ${task.dateCompleted}</p>
+                        <button onclick="printTaskReport(${index}, event)">Print Task Report</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTable() {
+            return `
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTasks('title')">Task Title</th>
+                            <th onclick="sortTasks('type')">Task Type</th>
+                            <th onclick="sortTasks('department')">Department</th>
+                            <th onclick="sortTasks('dateDue')">Due Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filterTasks().map((task, index) => `
+                            <tr onclick="toggleDetails(${index})">
+                                <td>${task.title}</td>
+                                <td>${task.type}</td>
+                                <td>${task.department}</td>
+                                <td>${task.dateDue}</td>
+                                <td><button onclick="printTaskReport(${index}, event)">Print</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function toggleView() {
+            isGridView = !isGridView;
+            document.querySelector('.view-toggle').textContent = isGridView ? 'Switch to List View' : 'Switch to Grid View';
+            renderTasks();
+        }
+
+        function toggleDetails(index) {
+            const taskCard = document.getElementById(`task-${index}`);
+            taskCard.classList.toggle('active');
+        }
+
+        function printTaskReport(index, event) {
+            event.stopPropagation();
+            const task = tasks[index];
+            const printWindow = window.open('', '', 'height=500, width=800');
+            printWindow.document.write(`<h2>Task Report: ${task.title}</h2>`);
+            printWindow.document.write(`
+                <p><strong>Task Title:</strong> ${task.title}</p>
+                <p><strong>Type:</strong> ${task.type}</p>
+                <p><strong>User:</strong> <a href="${task.userGithub}" target="_blank">${task.user}</a></p>
+                <p><strong>Team Lead:</strong> <a href="${task.teamLeadGithub}" target="_blank">${task.teamLead}</a></p>
+                <p><strong>Department:</strong> ${task.department}</p>
+                <p><strong>Due Date:</strong> ${task.dateDue}</p>
+                <p><strong>Completed:</strong> ${task.dateCompleted}</p>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        renderTasks();
+    </script>
+</body>
+
+</html>

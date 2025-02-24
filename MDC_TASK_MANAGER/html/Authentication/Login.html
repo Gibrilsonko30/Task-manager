@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - TaskManager</title>
+  <link rel="stylesheet" href="styles/style.css">
+
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(to right, #0f59a2, #4ca1af);
+      color: white;
+      animation: gradientAnimation 8s infinite alternate;
+    }
+
+    @keyframes gradientAnimation {
+      0% {
+        background: linear-gradient(to right, #2c3e50, #4ca1af);
+      }
+
+      100% {
+        background: linear-gradient(to right, #364f6b, #3fc1c9);
+      }
+    }
+
+    /* Container for Login Form */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      flex: 1;
+    }
+
+    /* Login Form Styling */
+    .auth-container {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+      animation: fadeIn 1.2s ease-in-out;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .auth-container:hover {
+      transform: scale(1.03);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      margin-bottom: 24px;
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    /* Input Field Styling */
+    .input-group {
+      position: relative;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Input Fields - Wider and Enhanced Readability */
+    input {
+      width: 95%;
+      max-width: 400px; /* Controlled max width */
+      padding: 16px;
+      margin-bottom: 20px;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      font-size: 18px;
+      outline: none;
+      background: rgba(26, 22, 74, 0.15);
+      color: white;
+      transition: border 0.3s ease-in-out, background 0.3s ease-in-out;
+      text-align: center;
+    }
+
+    /* Input Placeholder */
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 16px;
+    }
+
+    /* Input Focus Effect */
+    input:focus {
+      border: 2px solid #ff6f61;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 10px rgba(255, 111, 97, 0.5); /* Soft glowing effect */
+    }
+
+    /* Buttons */
+    button {
+      width: 90%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      background: linear-gradient(to right, #ff6f61, #ff4b2b);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #ff4b2b, #ff6f61);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(255, 75, 43, 0.6);
+    }
+
+    /* Error Message */
+    .error-message {
+      color: #ff4d4d;
+      margin-bottom: 12px;
+      font-size: 15px;
+      display: none;
+    }
+
+    /* Back Button */
+    .back-button {
+      width: 90%;
+      margin-top: 20px;
+      background: transparent;
+      color: white;
+      border: 1px solid white;
+      padding: 12px;
+      font-size: 17px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+    }
+
+    .back-button:hover {
+      background: rgb(144, 85, 85);
+      color: rgb(217, 233, 233);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .auth-container {
+        width: 95%;
+        padding: 40px;
+      }
+
+      input,
+      button {
+        width: 100%;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="auth-container">
+      <h2>Login to TaskManager</h2>
+      <form id="login-form">
+        <div class="input-group">
+          <input type="email" id="email" placeholder="Email" required />
+        </div>
+
+        <div class="input-group">
+          <input type="password" id="password" placeholder="Password" required />
+        </div>
+
+        <button type="submit">Login</button>
+      </form>
+
+      <p id="error-message" class="error-message">Invalid email or password!</p>
+      <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    const loginForm = document.getElementById("login-form");
+    const errorMessage = document.getElementById("error-message");
+
+    // Simulated Users (For Testing)
+    const users = [
+      { email: "admin@example.com", password: "admin123", role: "admin" },
+      { email: "user@example.com", password: "user123", role: "user" }
+    ];
+
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      // Authenticate User
+      const user = users.find(u => u.email === email && u.password === password);
+
+      if (!user) {
+        errorMessage.style.display = "block";
+        return;
+      }
+
+      // Store User Info in localStorage
+      localStorage.setItem("userRole", user.role);
+
+      // Redirect Based on Role
+      if (user.role === "admin") {
+        window.location.href = "admin-dashboard.html";
+      } else if (user.role === "user") {
+        window.location.href = "user-dashboard.html";
+      }
+    });
+
+    // Auto Redirect if Already Logged In
+    window.onload = () => {
+      const userRole = localStorage.getItem("userRole");
+      if (userRole === "admin") window.location.href = "admin-dashboard.html";
+      if (userRole === "user") window.location.href = "user-dashboard.html";
+    };
+  </script>
+
+</body>
+
+</html>

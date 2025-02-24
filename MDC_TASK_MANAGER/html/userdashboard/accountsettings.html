@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings | Task Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        header {
+            background-color: #02081a3c;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .account-settings-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .account-settings-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: #02081a3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 20%;
+        }
+
+        button:hover {
+            background-color: #3d0be2;
+        }
+
+        /* Back Arrow Button */
+        .back-btn {
+            background-color: #02081a3c;;
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+    
+            top: 20px;
+            left: 10px;
+        }
+
+        .back-btn:hover {
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #021a03;
+            color: white;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Back to Dashboard arrow -->
+    <button class="back-btn" onclick="window.location.href = 'userDashboard.html'">&#8592; Back to Dashboard</button>
+
+    <header>
+        <h1>My Dream Connect</h1>
+    </header>
+
+    <div class="account-settings-container">
+        <h2>Account Settings</h2>
+
+        <!-- Account Information Form -->
+        <form action="/update-profile" method="POST">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" value="user@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="contact">Contact Number</label>
+                <input type="tel" id="contact" name="contact" value="123-456-7890" required>
+            </div>
+            <div class="form-group">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" name="new-password">
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" name="confirm-password">
+            </div>
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 My Dream Connect - Task Manager. All Rights Reserved.</p>
+    </footer>
+
+</body>
+
+</html>

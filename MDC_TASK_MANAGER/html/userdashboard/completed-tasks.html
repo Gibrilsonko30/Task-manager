@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completed Tasks</title>
+
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 3;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* View Toggle Button */
+        .toggle-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            background: #4caf50;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: #2e7d32;
+        }
+
+        /* Task Grid View */
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .task-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Task List View - Wider */
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px; /* Increased width for better view */
+        }
+
+        .task-table th,
+        .task-table td {
+            padding: 16px; /* Increased padding for better readability */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: left;
+        }
+
+        .task-table th {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .task-table tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Task Details View */
+        .task-details {
+            display: none;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #2196f3;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #1976d2;
+        }
+
+        /* Profile Section (Top Right) */
+        .profile-section {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+        }
+
+        .profile-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .user-info {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Countdown Timer */
+        .task-time {
+            color: #FFD700;
+        }
+
+        /* Back to Dashboard Link */
+        .back-to-dashboard {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #2196f3;
+            font-size: 18px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .back-to-dashboard:hover {
+            color: #1976d2;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Link back to the dashboard -->
+    <a href="/html//userdashboard/userDashboard.html" class="back-to-dashboard">&#8592; Back to Dashboard</a>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <h1>Completed Tasks</h1>
+
+        <div class="toggle-container">
+            <button class="toggle-btn" id="toggleView">Switch to List View</button>
+        </div>
+
+        <!-- Task Container -->
+        <div id="taskContainer" class="task-grid">
+            <!-- Completed tasks will be dynamically loaded -->
+        </div>
+
+        <!-- Task Details View -->
+        <div id="taskDetails" class="task-details">
+            <h2 id="taskTitle"></h2>
+            <p id="taskDescription"></p>
+            <p><strong>Status:</strong> <span id="taskStatus"></span></p>
+            <p><strong>Due Date:</strong> <span id="taskDeadline"></span></p>
+            <button class="back-btn" onclick="showTaskList()">Back to Tasks</button>
+        </div>
+
+    </div>
+
+    <!-- User Profile Section (Top Right) -->
+    <div class="profile-section">
+        <img src="user-avatar.jpg" alt="User Profile" class="profile-img">
+        <p class="user-info"><strong>User ID:</strong> <span id="userId">123456</span></p>
+        <p class="user-info"><strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const completedTasks = [
+            {
+                id: 1,
+                title: "System Update",
+                description: "Updating the core system for better performance.",
+                status: "Completed",
+                deadline: "2025-02-20T10:00:00"
+            },
+            {
+                id: 2,
+                title: "Client Meeting",
+                description: "Discussing new project proposals with the client.",
+                status: "Completed",
+                deadline: "2025-02-25T14:30:00"
+            }
+        ];
+
+        const taskContainer = document.getElementById('taskContainer');
+        const taskDetails = document.getElementById('taskDetails');
+        const toggleViewBtn = document.getElementById('toggleView');
+        let isGridView = true;
+
+        function loadTasks() {
+            taskContainer.innerHTML = '';
+            if (isGridView) {
+                completedTasks.forEach(task => {
+                    taskContainer.innerHTML += `
+                        <div class="task-card" onclick="viewTask(${task.id})">
+                            <h3>${task.title}</h3>
+                            <p>${task.description}</p>
+                            <p class="task-status">${task.status}</p>
+                            <p class="task-time">${getTimeLeft(task.deadline)}</p>
+                        </div>`;
+                });
+            } else {
+                const table = document.createElement('table');
+                table.className = 'task-table';
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${completedTasks.map(task => `
+                            <tr onclick="viewTask(${task.id})">
+                                <td>${task.title}</td>
+                                <td>${task.description}</td>
+                                <td>${task.status}</td>
+                                <td>${getTimeLeft(task.deadline)}</td>
+                            </tr>`).join('')}
+                    </tbody>`;
+                taskContainer.appendChild(table);
+            }
+        }
+
+        function getTimeLeft(deadline) {
+            return new Date(deadline).toLocaleString();
+        }
+
+        function viewTask(id) {
+            const task = completedTasks.find(task => task.id === id);
+            document.getElementById('taskTitle').textContent = task.title;
+            document.getElementById('taskDescription').textContent = task.description;
+            document.getElementById('taskStatus').textContent = task.status;
+            document.getElementById('taskDeadline').textContent = new Date(task.deadline).toLocaleString();
+            taskContainer.style.display = 'none';
+            taskDetails.style.display = 'block';
+        }
+
+        function showTaskList() {
+            taskContainer.style.display = 'grid';
+            taskDetails.style.display = 'none';
+        }
+
+        toggleViewBtn.addEventListener('click', () => {
+            isGridView = !isGridView;
+            toggleViewBtn.textContent = isGridView ? "Switch to List View" : "Switch to Grid View";
+            loadTasks();
+        });
+
+        window.onload = loadTasks;
+    </script>
+
+</body>
+
+</html>

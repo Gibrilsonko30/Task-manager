@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Overview - Admin Dashboard</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            margin: 0;
+            padding: 40px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4db8ff;
+            margin-bottom: 30px;
+        }
+
+        /* Back to Dashboard Button */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #4db8ff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background 0.3s ease;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: #1abc9c;
+        }
+
+        /* View Toggle Buttons */
+        .view-toggle {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 30px;
+        }
+
+        .view-toggle button {
+            background: #4db8ff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .view-toggle button:hover {
+            background: #1abc9c;
+        }
+
+        /* Card View */
+        .task-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .user-card {
+            flex: 1 1 calc(33.33% - 20px);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .user-card p {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+
+        /* Table View */
+        .task-table-container {
+            display: none;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+        }
+
+        th {
+            background: #4db8ff;
+        }
+
+        td {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .user-card {
+                flex: 1 1 calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .user-card {
+                flex: 1 1 100%;
+            }
+
+            .view-toggle {
+                justify-content: center;
+            }
+
+            th, td {
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Back to Dashboard Button -->
+    <a href="mainDashBoard.html" class="back-btn">← Back to Dashboard</a>
+
+    <h1>Overall Task Progress</h1>
+
+    <!-- View Toggle -->
+    <div class="view-toggle">
+        <button onclick="toggleView('card')">Card View</button>
+        <button onclick="toggleView('table')">Table View</button>
+    </div>
+
+    <!-- Card View -->
+    <div id="taskCardView" class="task-container"></div>
+
+    <!-- Table View -->
+    <div id="taskTableView" class="task-table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Assigned User</th>
+                    <th>Department</th>
+                    <th>Due Date</th>
+                    <th>Progress</th>
+                </tr>
+            </thead>
+            <tbody id="taskTableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Sample Task Data
+        const tasks = [
+            { id: 1, title: 'Dashboard UI Design', assignedTo: 'John Doe', department: 'Engineering', dueDate: '2025-03-10', progress: 85 },
+            { id: 2, title: 'API Integration', assignedTo: 'Jane Smith', department: 'Marketing', dueDate: '2025-03-20', progress: 60 },
+            { id: 3, title: 'Bug Fixing', assignedTo: 'Alice Johnson', department: 'HR', dueDate: '2025-03-15', progress: 40 },
+            { id: 4, title: 'User Authentication', assignedTo: 'Michael Brown', department: 'Finance', dueDate: '2025-03-05', progress: 92 },
+            { id: 5, title: 'Billing System Update', assignedTo: 'Sophia Williams', department: 'Operations', dueDate: '2025-03-25', progress: 25 }
+        ];
+
+        // Populate Card and Table Views
+        const cardView = document.getElementById('taskCardView');
+        const tableBody = document.getElementById('taskTableBody');
+
+        tasks.forEach(task => {
+            const color = getProgressColor(task.progress);
+
+            // Card View
+            cardView.innerHTML += `
+                <div class="user-card" onclick="viewUser(${task.id})">
+                    <p><strong>${task.title}</strong></p>
+                    <p>Assigned to: ${task.assignedTo}</p>
+                    <p>Department: ${task.department}</p>
+                    <p>Due Date: ${task.dueDate}</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${task.progress}%; background: ${color};"></div>
+                    </div>
+                </div>`;
+
+            // Table View
+            tableBody.innerHTML += `
+                <tr onclick="viewUser(${task.id})">
+                    <td>${task.title}</td>
+                    <td>${task.assignedTo}</td>
+                    <td>${task.department}</td>
+                    <td>${task.dueDate}</td>
+                    <td>${task.progress}%</td>
+                </tr>`;
+        });
+
+        // Progress Color Logic
+        function getProgressColor(progress) {
+            return progress >= 80 ? '#1b8c3c' : progress >= 50 ? '#4caf50' : '#ff5733';
+        }
+
+        // Toggle Between Views
+        function toggleView(view) {
+            document.getElementById('taskCardView').style.display = view === 'card' ? 'flex' : 'none';
+            document.getElementById('taskTableView').style.display = view === 'table' ? 'block' : 'none';
+        }
+
+        // Default to Card View
+        toggleView('card');
+    </script>
+
+</body>
+
+</html>

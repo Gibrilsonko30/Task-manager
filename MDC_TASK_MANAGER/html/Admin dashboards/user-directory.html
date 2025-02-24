@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>All Users - Admin Dashboard</title>
+    <style>
+        /* Global Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            margin: 0;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4db8ff;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .back-btn {
+            background: #4db8ff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #1abc9c;
+        }
+
+        .mdc-logo img {
+            width: 100px;
+            height: auto;
+        }
+
+        /* User Container */
+        .user-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        /* User Card */
+        .user-card {
+            flex: 1 1 calc(33.33% - 20px);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            position: relative;
+            text-align: center;
+        }
+
+        .user-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Profile Image */
+        .user-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #4db8ff;
+            margin-bottom: 15px;
+        }
+
+        /* User Info */
+        .user-card p {
+            margin: 6px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .user-card strong {
+            font-size: 22px;
+            color: #4db8ff;
+        }
+
+        .user-card .contact {
+            margin: 10px 0;
+            font-weight: 400;
+        }
+
+        .user-card .github-link {
+            color: #4db8ff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .user-card .github-link:hover {
+            color: #1abc9c;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .user-card {
+                flex: 1 1 calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .user-card {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <div class="header">
+        <a href="dashboard.html" class="back-btn">⬅ Back to Dashboard</a>
+        <div class="mdc-logo">
+            <img src="mdclogo.png" alt="MDC Logo">
+        </div>
+    </div>
+
+    <h1>All Users</h1>
+
+    <!-- Users Container -->
+    <div id="usersContainer" class="user-container"></div>
+
+    <script>
+        // Sample User Data
+        const users = [
+            {
+                id: 1,
+                name: 'John Doe',
+                department: 'Engineering',
+                specialization: 'Backend Development',
+                degree: 'MSc Computer Science',
+                email: 'john.doe@example.com',
+                phone: '+1234567890',
+                github: 'https://github.com/johndoe',
+                photo: 'https://randomuser.me/api/portraits/men/32.jpg'
+            },
+            {
+                id: 2,
+                name: 'Jane Smith',
+                department: 'Marketing',
+                specialization: 'SEO & Content Strategy',
+                degree: 'MBA in Marketing',
+                email: 'jane.smith@example.com',
+                phone: '+1987654321',
+                github: 'https://github.com/janesmith',
+                photo: 'https://randomuser.me/api/portraits/women/44.jpg'
+            },
+            {
+                id: 3,
+                name: 'Alice Johnson',
+                department: 'HR',
+                specialization: 'Employee Relations',
+                degree: 'BA Human Resources',
+                email: 'alice.j@example.com',
+                phone: '+1122334455',
+                github: 'https://github.com/alicejohnson',
+                photo: 'https://randomuser.me/api/portraits/women/37.jpg'
+            },
+            {
+                id: 4,
+                name: 'Michael Brown',
+                department: 'Finance',
+                specialization: 'Financial Analytics',
+                degree: 'BSc Finance & Accounting',
+                email: 'michael.b@example.com',
+                phone: '+1555666777',
+                github: 'https://github.com/michaelbrown',
+                photo: 'https://randomuser.me/api/portraits/men/45.jpg'
+            },
+            {
+                id: 5,
+                name: 'Sophia Williams',
+                department: 'Operations',
+                specialization: 'Logistics Management',
+                degree: 'MSc Operations Management',
+                email: 'sophia.w@example.com',
+                phone: '+1444555666',
+                github: 'https://github.com/sophiawilliams',
+                photo: 'https://randomuser.me/api/portraits/women/29.jpg'
+            }
+        ];
+
+        const usersContainer = document.getElementById('usersContainer');
+
+        // Populate User Cards
+        function renderUsers() {
+            users.forEach(user => {
+                usersContainer.innerHTML += `
+                    <div class="user-card" onclick="viewUser(${user.id})">
+                        <img src="${user.photo}" alt="Profile Picture">
+                        <p class="contact">📞 ${user.phone} | 📧 ${user.email}</p>
+                        <p><strong>${user.name}</strong></p>
+                        <p>📌 Department: ${user.department}</p>
+                        <p>🎯 Specialization: ${user.specialization}</p>
+                        <p>🎓 Degree: ${user.degree}</p>
+                        <p>🔗 GitHub: <a href="${user.github}" class="github-link" target="_blank">View Profile</a></p>
+                    </div>`;
+            });
+        }
+
+        // Navigate to User's Task Page
+        function viewUser(userId) {
+            window.location.href = `../pages/tasks-by-department.html?user=${userId}`;
+        }
+
+        // Initialize the page
+        renderUsers();
+    </script>
+
+</body>
+
+</html>

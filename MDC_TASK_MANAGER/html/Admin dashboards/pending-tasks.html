@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pending Tasks - Admin Dashboard</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            margin: 0;
+            padding: 40px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4db8ff;
+            margin-bottom: 30px;
+        }
+
+        /* Header with Logo and Back Button */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .mdc-logo img {
+            width: 100px;
+            height: auto;
+        }
+
+        .back-btn {
+            background: #4db8ff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #1abc9c;
+        }
+
+        /* View Toggle Buttons */
+        .view-toggle {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 30px;
+        }
+
+        .view-toggle button {
+            background: #4db8ff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .view-toggle button:hover {
+            background: #1abc9c;
+        }
+
+        /* Card View */
+        .task-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .task-card {
+            flex: 1 1 calc(33.33% - 20px);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            position: relative;
+        }
+
+        .task-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .task-card p {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        /* Countdown Timer */
+        .countdown {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff4757;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 12px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            border-radius: 8px;
+            transition: width 0.8s ease;
+        }
+
+        /* Table View */
+        .task-table-container {
+            display: none;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+        }
+
+        th {
+            background: #4db8ff;
+        }
+
+        td {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .task-card {
+                flex: 1 1 calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .task-card {
+                flex: 1 1 100%;
+            }
+
+            th, td {
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <div class="header">
+        <a href="mainDashBoard.html" class="back-btn">⬅ Back to Dashboard</a>
+        <div class="mdc-logo">
+            <img src="/images/mdclogo.png" alt="MDC Logo">
+        </div>
+    </div>
+
+    <h1>Pending Tasks</h1>
+
+    <!-- View Toggle -->
+    <div class="view-toggle">
+        <button onclick="toggleView('card')">Card View</button>
+        <button onclick="toggleView('table')">Table View</button>
+    </div>
+
+    <!-- Card View -->
+    <div id="taskCardView" class="task-container"></div>
+
+    <!-- Table View -->
+    <div id="taskTableView" class="task-table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Task Title</th>
+                    <th>Assigned User</th>
+                    <th>Department</th>
+                    <th>Due Date</th>
+                    <th>Time Left</th>
+                </tr>
+            </thead>
+            <tbody id="taskTableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const pendingTasks = [
+            { id: 101, title: 'Fix Backend Bug', assignedTo: 'John Doe', department: 'Engineering', dueDate: '2025-03-20', progress: 65 },
+            { id: 102, title: 'UI Enhancement', assignedTo: 'Alice Johnson', department: 'Design', dueDate: '2025-04-01', progress: 40 },
+            { id: 103, title: 'Marketing Strategy', assignedTo: 'Jane Smith', department: 'Marketing', dueDate: '2025-03-25', progress: 85 }
+        ];
+
+        const cardView = document.getElementById('taskCardView');
+        const tableBody = document.getElementById('taskTableBody');
+
+        function getCountdown(dueDate) {
+            const now = new Date();
+            const deadline = new Date(dueDate);
+            const diff = deadline - now;
+
+            if (diff <= 0) return "Expired";
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            return `${days} days left`;
+        }
+
+        function render() {
+            pendingTasks.forEach(task => {
+                cardView.innerHTML += `
+                    <div class="task-card">
+                        <p><strong>${task.title}</strong></p>
+                        <p>Assigned to: ${task.assignedTo}</p>
+                        <p>Department: ${task.department}</p>
+                        <div class="countdown">${getCountdown(task.dueDate)}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${task.progress}%; background: ${task.progress >= 50 ? '#4caf50' : '#ff5733'};"></div>
+                        </div>
+                    </div>`;
+
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${task.title}</td>
+                        <td>${task.assignedTo}</td>
+                        <td>${task.department}</td>
+                        <td>${task.dueDate}</td>
+                        <td>${getCountdown(task.dueDate)}</td>
+                    </tr>`;
+            });
+        }
+
+        function toggleView(view) {
+            cardView.style.display = view === 'card' ? 'flex' : 'none';
+            tableBody.parentElement.parentElement.style.display = view === 'table' ? 'block' : 'none';
+        }
+
+        render();
+        toggleView('card');
+    </script>
+
+</body>
+
+</html>

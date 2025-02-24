@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>All Tasks</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1E3C72, #2A5298);
+            color: white;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section select,
+        .filter-section input,
+        .filter-section button {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            background-color: #ff6b81;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .filter-section select:hover,
+        .filter-section input:hover,
+        .filter-section button:hover {
+            background-color: #e55039;
+        }
+
+        /* Task List */
+        .task-list {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        /* Card View */
+        .task-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            width: 300px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .task-card h3 {
+            color: #ff6b81;
+            font-size: 18px;
+        }
+
+        .task-card p {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .task-status {
+            background: #ff4757;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        /* List View */
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .task-table th, .task-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+        }
+
+        .task-table th {
+            background: #ff4757;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .filter-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .task-list {
+                flex-direction: column;
+            }
+
+            .task-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>All Tasks</h1>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <select id="taskStatus" onchange="renderTasks()">
+            <option value="">Filter by Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+            <option value="Failed">Failed</option>
+            <option value="Overdue">Overdue</option>
+        </select>
+
+        <input type="date" id="taskDate" onchange="renderTasks()">
+
+        <button onclick="toggleView()">Switch to List View</button>
+    </div>
+
+    <!-- Task List -->
+    <div class="task-list" id="taskList"></div>
+
+    <script>
+        const tasks = [
+            {
+                title: "Fix Server Issue",
+                assignedDate: "2025-02-20",
+                createdDate: "2025-02-15",
+                userName: "John Doe",
+                userId: "12345",
+                teamLead: "Jane Smith",
+                status: "Completed"
+            },
+            {
+                title: "Update User Profiles",
+                assignedDate: "2025-02-19",
+                createdDate: "2025-02-10",
+                userName: "Alice Johnson",
+                userId: "54321",
+                teamLead: "Michael Brown",
+                status: "Pending"
+            },
+            {
+                title: "Analyze Logs",
+                assignedDate: "2025-02-18",
+                createdDate: "2025-02-12",
+                userName: "David Lee",
+                userId: "67890",
+                teamLead: "Sarah Adams",
+                status: "Failed"
+            },
+            {
+                title: "Enhance Security",
+                assignedDate: "2025-02-21",
+                createdDate: "2025-02-17",
+                userName: "Emma Watson",
+                userId: "11223",
+                teamLead: "John Green",
+                status: "Overdue"
+            },
+            {
+                title: "Database Backup",
+                assignedDate: "2025-02-22",
+                createdDate: "2025-02-14",
+                userName: "Robert Brown",
+                userId: "44556",
+                teamLead: "Michael Brown",
+                status: "Completed"
+            }
+        ];
+
+        let isGridView = true;
+
+        // Function to render tasks based on the current view
+        function renderTasks() {
+            const taskStatus = document.getElementById("taskStatus").value;
+            const taskDate = document.getElementById("taskDate").value;
+            const filteredTasks = filterTasks(taskStatus, taskDate);
+            const container = document.getElementById("taskList");
+
+            if (isGridView) {
+                container.innerHTML = renderGridView(filteredTasks);
+            } else {
+                container.innerHTML = renderListView(filteredTasks);
+            }
+        }
+
+        // Function to filter tasks based on status and date
+        function filterTasks(status, date) {
+            return tasks.filter(task => {
+                const matchesStatus = status ? task.status === status : true;
+                const matchesDate = date ? task.assignedDate === date : true;
+                return matchesStatus && matchesDate;
+            });
+        }
+
+        // Function to render tasks in grid view
+        function renderGridView(filteredTasks) {
+            return filteredTasks.map(task => `
+                <div class="task-card">
+                    <h3>${task.title}</h3>
+                    <p><strong>Assigned Date:</strong> ${task.assignedDate}</p>
+                    <p><strong>Created Date:</strong> ${task.createdDate}</p>
+                    <p><strong>Assigned To:</strong> ${task.userName} (ID: ${task.userId})</p>
+                    <p><strong>Team Lead:</strong> ${task.teamLead}</p>
+                    <p><span class="task-status">${task.status}</span></p>
+                </div>
+            `).join('');
+        }
+
+        // Function to render tasks in list view
+        function renderListView(filteredTasks) {
+            return `
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Assigned Date</th>
+                            <th>Created Date</th>
+                            <th>User Name</th>
+                            <th>Team Lead</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredTasks.map(task => `
+                            <tr>
+                                <td>${task.title}</td>
+                                <td>${task.assignedDate}</td>
+                                <td>${task.createdDate}</td>
+                                <td>${task.userName} (ID: ${task.userId})</td>
+                                <td>${task.teamLead}</td>
+                                <td><span class="task-status">${task.status}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Function to toggle between grid and list view
+        function toggleView() {
+            isGridView = !isGridView;
+            const button = document.querySelector("button");
+            button.textContent = isGridView ? "Switch to List View" : "Switch to Grid View";
+            renderTasks();
+        }
+
+        // Initial render
+        renderTasks();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pending Tasks</title>
+
+    <style>
+        /* Main Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #3c0554, #C39BD3);
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: background 0.5s ease;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* Grid Layout for Pending Task Cards */
+        .pending-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            justify-content: center;
+            align-items: start;
+        }
+
+        /* Individual Task Card */
+        .pending-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pending-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .task-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+
+        .task-description {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .task-deadline {
+            font-size: 0.9rem;
+            color: #F5B041;
+        }
+
+        /* Task Priority Badge */
+        .priority {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        .high-priority {
+            background: #e74c3c;
+        }
+
+        .medium-priority {
+            background: #f39c12;
+        }
+
+        .low-priority {
+            background: #2ecc71;
+        }
+
+        /* Task Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            border-radius: 10px;
+            margin-top: 12px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .progress {
+            height: 100%;
+            border-radius: 10px;
+            background: #4CAF50;
+            transition: width 0.6s ease;
+        }
+
+        /* Countdown Timer */
+        .countdown {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #FF6347;
+            margin-top: 10px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 60%;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        /* Grid/List Toggle Button */
+        .view-toggle {
+            text-align: center;
+            margin: 20px;
+        }
+
+        .view-toggle button {
+            padding: 10px 20px;
+            background: #393094;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .view-toggle button:hover {
+            background: #1e8449;
+        }
+
+        /* Dark/Light Mode Toggle */
+        .theme-toggle {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .light-mode {
+            background: linear-gradient(135deg, #f5f5f5, #dcdcdc);
+            color: black;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .pending-container {
+                grid-template-columns: 1fr;
+            }
+
+            input[type="text"] {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Pending Tasks</h1>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input type="text" id="search" placeholder="Search tasks..." onkeyup="searchTasks()">
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()">Toggle Light/Dark Mode</button>
+
+    <!-- Grid/List View Toggle -->
+    <div class="view-toggle">
+        <button onclick="toggleView('grid')">Grid View</button>
+        <button onclick="toggleView('list')">List View</button>
+    </div>
+
+    <!-- Pending Task Cards -->
+    <div class="pending-container" id="pendingList">
+        <!-- Pending tasks will be loaded dynamically here -->
+    </div>
+
+    <script>
+        // Sample Pending Task Data
+        const pendingTasks = [
+            {
+                title: "Bug Fixing",
+                description: "Resolve critical system bugs in the API.",
+                deadline: "Due in 2 days",
+                priority: "High",
+                progress: 40,
+                countdown: 48, // Countdown time in hours
+                details: "This task involves fixing bugs related to API performance issues and user authentication errors."
+            },
+            {
+                title: "UI Updates",
+                description: "Improve the user interface for better user experience.",
+                deadline: "Due in 4 days",
+                priority: "Medium",
+                progress: 20,
+                countdown: 96,
+                details: "This task focuses on making the UI more intuitive and user-friendly by updating buttons and forms."
+            },
+            {
+                title: "Database Optimization",
+                description: "Enhance database queries for faster performance.",
+                deadline: "Due in 1 week",
+                priority: "Low",
+                progress: 60,
+                countdown: 168,
+                details: "Optimize existing queries to reduce the database load and improve performance for large datasets."
+            },
+            {
+                title: "Add Task Filtering",
+                description: "Implement advanced filtering for better task management.",
+                deadline: "Due in 3 days",
+                priority: "Medium",
+                progress: 35,
+                countdown: 72,
+                details: "Add filters for sorting tasks by priority, due date, and completion status."
+            }
+        ];
+
+        const pendingList = document.getElementById('pendingList');
+        let currentView = 'grid'; // Default view
+
+        // Function to format the countdown time
+        function formatCountdown(hours) {
+            const days = Math.floor(hours / 24);
+            const remainingHours = hours % 24;
+            return `${days}d ${remainingHours}h`;
+        }
+
+        // Dynamically Generate Pending Task Cards
+        function loadTasks() {
+            pendingList.innerHTML = '';
+            pendingTasks.forEach((task, index) => {
+                const priorityClass = task.priority === 'High' ? 'high-priority' : task.priority === 'Medium' ? 'medium-priority' : 'low-priority';
+                pendingList.innerHTML += `
+                <div class="pending-card" onclick="showTaskDetail(${index})">
+                    <div class="task-title">${task.title}
+                        <span class="priority ${priorityClass}">${task.priority}</span>
+                    </div>
+                    <div class="task-description">${task.description}</div>
+                    <div class="task-deadline">${task.deadline}</div>
+                    <div class="progress-bar"><div class="progress" style="width: ${task.progress}%"></div></div>
+                    <div class="countdown">Time Left: ${formatCountdown(task.countdown)}</div>
+                </div>`;
+            });
+        }
+
+        // Search Tasks by Title/Description
+        function searchTasks() {
+            const query = document.getElementById('search').value.toLowerCase();
+            pendingTasks.forEach((task, index) => {
+                const card = pendingList.children[index];
+                const isVisible = task.title.toLowerCase().includes(query) || task.description.toLowerCase().includes(query);
+                card.style.display = isVisible ? 'block' : 'none';
+            });
+        }
+
+        // Show Task Detail and Hide Others
+        function showTaskDetail(index) {
+            const task = pendingTasks[index];
+            const taskCard = pendingList.children[index];
+            const taskDetails = document.createElement('div');
+            taskDetails.className = 'task-details';
+            taskDetails.innerHTML = `
+                <div class="task-title">${task.title}</div>
+                <div class="task-description">${task.details}</div>
+                <button onclick="hideTaskDetail(${index})">Close</button>
+            `;
+            taskCard.innerHTML = ''; // Clear the task card content
+            taskCard.appendChild(taskDetails); // Add the details view
+        }
+
+        // Hide Task Detail and Show Others
+        function hideTaskDetail(index) {
+            loadTasks(); // Reload the tasks to reset the grid view
+            showTaskDetail(index); // Re-show the task details for the selected task
+        }
+
+        // Toggle between Grid and List Views
+        function toggleView(view) {
+            currentView = view;
+            if (currentView === 'list') {
+                pendingList.style.display = 'none';
+                const table = document.createElement('table');
+                table.classList.add('task-list-table');
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Deadline</th>
+                            <th>Priority</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${pendingTasks.map((task, index) => `
+                        <tr onclick="showTaskDetail(${index})">
+                            <td>${task.title}</td>
+                            <td>${task.description}</td>
+                            <td>${task.deadline}</td>
+                            <td>${task.priority}</td>
+                            <td><button class="complete-btn">View</button></td>
+                        </tr>`).join('')}
+                    </tbody>
+                `;
+                document.body.appendChild(table);
+            } else {
+                pendingList.style.display = 'grid';
+                loadTasks(); // Reload grid view
+            }
+        }
+
+        // Toggle Light/Dark Mode
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        // Initialize Tasks
+        window.onload = loadTasks;
+    </script>
+
+</body>
+
+</html>
